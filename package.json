@@ -1,0 +1,40 @@
+{
+  "name": "automated_reporting",
+  "version": "1.0.0",
+  "main": "app.mjs",
+  "scripts": {
+    "dev": "nodemon Start.cjs",
+    "start": "node Start.cjs"
+  },
+  "keywords": [],
+  "author": "Abdelrahman_Galal",
+  "license": "ISC",
+  "description": "This is the backend of the Automated Reporting project",
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.54.1",
+    "@turf/turf": "^7.2.0",
+    "axios": "^1.9.0",
+    "bcrypt": "^6.0.0",
+    "canvas": "^3.1.2",
+    "cors": "^2.8.5",
+    "docxtemplater": "^3.63.0",
+    "docxtemplater-image-module-free": "^1.1.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-async-handler": "^1.2.0",
+    "fs-extra": "^11.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^7.0.3",
+    "ol": "^10.5.0",
+    "path": "^0.12.7",
+    "pizzip": "^3.2.0",
+    "proj4": "^2.19.6",
+    "puppeteer": "^24.12.1",
+    "uuid": "^11.1.0",
+    "xmldom": "^0.6.0"
+  }
+}
