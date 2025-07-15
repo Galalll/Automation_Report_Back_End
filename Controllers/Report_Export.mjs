@@ -54,7 +54,9 @@ const Export_Report = expressAsyncHandler(async (req, res) => {
         result: await Query_Services(geometry),
     };
     let buf = await Report_Creation(user, Report_Content,geometry)
-
+    if (!buf) {
+        return res.status(500).json({ message: "Failed to generate report." });
+    }
     res.status(200).set({
         'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'Content-Disposition': 'attachment; filename=Generated_Report.docx',
@@ -87,6 +89,7 @@ async function Query_Services(geometry) {
         Riverine_Inundation: await Query_Riverine_Inundation_Service(minLon,minLat,maxLon,maxLat,Location)
     };
 }
+
 
 async function Report_Creation(User, Report_Content,geometry) {
     let AddHistory = {};

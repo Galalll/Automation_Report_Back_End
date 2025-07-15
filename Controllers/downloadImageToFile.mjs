@@ -1,9 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
-import os from 'os';
 import { URL } from 'url';
-
-export async function downloadImageToFile(imageUrl, outDir = 'TmpImages') {
+import os from 'os';
+export async function downloadImageToFile(imageUrl) {
   // 1) Fetch the URL
   const res = await fetch(imageUrl);
   if (!res.ok) {
@@ -20,10 +19,9 @@ export async function downloadImageToFile(imageUrl, outDir = 'TmpImages') {
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
 
   // 4) Ensure output directory exists (optional)
-  await fs.mkdir(outDir, { recursive: true });
 
   // 5) Write to disk
-  const filePath = path.join(outDir, filename);
+  const filePath = path.join(os.tmpdir(), filename);
   await fs.writeFile(filePath, buffer);
 
   // 6) Return the path
