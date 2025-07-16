@@ -188,32 +188,53 @@ async function Report_Creation(User, Report_Content,geometry) {
     }
 }
 
-async function SaveQueryHistory(attributes) {
-    const url = `https://services-ap1.arcgis.com/ZXhVeRvWZGPvtP2i/ArcGIS/rest/services/Automated_Reporting_Tables/FeatureServer/1/applyEdits`;
-    const adds = [{ attributes }];
-    const body = new URLSearchParams({
-        adds: JSON.stringify(adds),
-        f: "json",
-        token: AGOL_Token,
-    });
+export async function SaveQueryHistory(attributes) {
+  const url = `https://services-ap1.arcgis.com/ZXhVeRvWZGPvtP2i/ArcGIS/rest/services/Automated_Reporting_Tables/FeatureServer/1/applyEdits`;
+  const adds = [{ attributes }];
+  const bodyParams = new URLSearchParams({
+    adds: JSON.stringify(adds),
+    f: 'json',
+    token: AGOL_Token,
+  }).toString();
 
-    const { data } = await axios.post(url, body.toString(), {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    });
+  // Create an axios instance with timeout
+  const client = axios.create({
+    timeout: 10_000, // abort if no response in 10s
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  });
 
-    // 1a) ArcGIS REST top-level error?
-    if (data.error) {
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const { data } = await client.post(url, bodyParams);
+      // Check for ArcGIS REST errors
+      if (data.error) {
         throw new Error(`AGOL error: ${data.error.code} ${data.error.message}`);
-    }
-    // 1b) per-feature error?
-    const addResult = data.addResults?.[0];
-    if (addResult?.error) {
+      }
+      const addResult = data.addResults?.[0];
+      if (addResult?.error) {
         throw new Error(
-            `Feature add failed: ${addResult.error.code} ${addResult.error.description}`
+          `Feature add failed: ${addResult.error.code} ${addResult.error.description}`
         );
+      }
+      return data;
+    } catch (err) {
+      lastError = err;
+      console.warn(
+        `SaveQueryHistory attempt #${attempt} failed:`,
+        err.code === 'ECONNABORTED' ? 'timeout' : err.message
+      );
+      if (attempt < 2) {
+        // back off 1 second before retry
+        await new Promise(r => setTimeout(r, 1000));
+      }
     }
+  }
 
-    return data; // or just return
+  // Both attempts failed
+  throw lastError;
 }
 
 //////Coastal Hazard Information//////
