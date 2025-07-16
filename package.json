@@ -1,7 +1,8 @@
 {
   "name": "automated_reporting",
   "version": "1.0.0",
-  "main": "app.mjs",
+   "type": "module",
+  "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js"

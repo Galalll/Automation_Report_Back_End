@@ -8,7 +8,7 @@ import { Report_Router } from "./routes/Report_Router.mjs";
 import { TokenValidate } from "./middleware/TokenValidation.mjs";
 import { MailRouter } from "./routes/MailRouters.mjs";
 dotenv.config()
-let port = process.env.PORT;
+let port = process.env.PORT || 3000;;
 let app = express();
 app.use(cors());
 app.use(express.json());
@@ -27,9 +27,14 @@ app.use("/Mail",MailRouter);
 app.use(TokenValidate);
 app.use("/Report_Export",Report_Router);
 
-
-
-app.listen(port,()=>{
+try {
+    app.listen(port,()=>{
     console.log("Server is UP");
 })
+} catch (error) {
+    console.error('⚠️  Failed to start app:', error);
+    process.exit(1);
+}
+
+
 
