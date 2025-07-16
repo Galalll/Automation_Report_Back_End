@@ -54,9 +54,7 @@ const Export_Report = expressAsyncHandler(async (req, res) => {
         result: await Query_Services(geometry),
     };
     let buf = await Report_Creation(user, Report_Content,geometry)
-    if (!buf) {
-        return res.status(500).json({ message: "Failed to generate report." });
-    }
+
     res.status(200).set({
         'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'Content-Disposition': 'attachment; filename=Generated_Report.docx',
@@ -89,7 +87,6 @@ async function Query_Services(geometry) {
         Riverine_Inundation: await Query_Riverine_Inundation_Service(minLon,minLat,maxLon,maxLat,Location)
     };
 }
-
 
 async function Report_Creation(User, Report_Content,geometry) {
     let AddHistory = {};
@@ -177,16 +174,14 @@ async function Report_Creation(User, Report_Content,geometry) {
             GNSLandslideDatabase: Report_Content.result.Landslides? Report_Content.result.Landslides:'No response',
             StewartIslandLandUse: Report_Content.result.Stewart_Island_Land_Use? Report_Content.result.Stewart_Island_Land_Use:'No response',
             propertyboundary: tmpImagePath,
-            floodphotographs: localPhotoPath,
+            floodphotographs : localPhotoPath
         });
         // Render the document (replace all tags)
 
         // Generate the document buffer
         const buf = doc.getZip().generate({ type: "nodebuffer" });
         fs.unlinkSync(tmpImagePath);
-        if (localPhotoPath) {
-            fs.unlinkSync(localPhotoPath);
-        }
+        fs.unlinkSync(localPhotoPath);
         return buf;
     } catch (error) {
         console.error("Error generating report:", error);

@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { URL } from 'url';
 import os from 'os';
+
 export async function downloadImageToFile(imageUrl) {
   // 1) Fetch the URL
   const res = await fetch(imageUrl);
