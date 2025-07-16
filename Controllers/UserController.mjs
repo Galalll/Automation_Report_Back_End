@@ -1,8 +1,7 @@
 import expressAsyncHandler from 'express-async-handler';
 import axios from 'axios';
 import Jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 
 dotenv.config();
