@@ -88,7 +88,7 @@ async function Query_Services(geometry) {
     };
 }
 
-async function Report_Creation(User, Report_Content,geometry) {
+async function Report_Creation(User, Report_Content, geometry) {
     let AddHistory = {};
     AddHistory.UserEmail = User.user.Email;
     AddHistory.UserName = `${User.user.FirstName} ${User.user.LastName}`;
@@ -108,17 +108,17 @@ async function Report_Creation(User, Report_Content,geometry) {
         const centerPt = turf.centroid(myGeoJSON);
         const [lon, lat] = centerPt.geometry.coordinates;
 
-         const imgBuffer = await captureMapWithLeaflet({
+        const imgBuffer = await captureMapWithLeaflet({
             geojson: myGeoJSON,
             center: [lon, lat],
             zoom: 15,
             width: 1200,
             height: 800,
         });
-        
+
         const tmpImagePath = path.join(os.tmpdir(), 'map.png');
         fs.writeFileSync(tmpImagePath, imgBuffer);
-        
+
         let localPhotoPath;
         if (Report_Content.result.Historical_Flood_Photographs) {
             localPhotoPath = await downloadImageToFile(Report_Content.result.Historical_Flood_Photographs);
@@ -134,7 +134,7 @@ async function Report_Creation(User, Report_Content,geometry) {
         // Load the template into PizZip & Docxtemplater
         const zip = new PizZip(content);
 
-           // 2c) Configure the image module
+        // 2c) Configure the image module
         const imageModule = new ImageModule({
             getImage: (tagValue) => {
                 // tagValue will be the path we pass in below:
@@ -145,7 +145,7 @@ async function Report_Creation(User, Report_Content,geometry) {
                 return [600, 400];
             }
         });
-        
+
         const doc = new Docxtemplater(zip, {
             paragraphLoop: true,
             linebreaks: true,
@@ -160,28 +160,32 @@ async function Report_Creation(User, Report_Content,geometry) {
             territorialAuthority: Report_Content.search_input.Territorial_Authority,
             limReferenceNumber: Report_Content.search_input.LIM_Reference_Number,
             date: formattedDate,
-            CoastalHazardLine: Report_Content.result.Coastal_Hazard_Line? Report_Content.result.Coastal_Hazard_Line:'No response',
-            CoaslineMostProne : Report_Content.result.Coastline_Most_Prone_To_Erosion? Report_Content.result.Coastline_Most_Prone_To_Erosion:'No response',
-            SeaLevelRise: Report_Content.result.Sea_Level_Rise_Storm? Report_Content.result.Sea_Level_Rise_Storm:'No response',
-            ActiveFaultDatabase: Report_Content.result.Active_Faults? Report_Content.result.Active_Faults:'No response',
-            SouthlandGroundShaking: Report_Content.result.Shaking_Amplification? Report_Content.result.Shaking_Amplification:'Tsunami  modelling in Southland is still being undertaken and is subject to change. If you are concerned, near a waterbody and there is a long or strong earthquake, evacuate the area immediately. Do not wait for official warnings.',
-            SouthlandLiquefactionRisk: Report_Content.result.Liquefaction_Risk? Report_Content.result.Liquefaction_Risk:'No response',
-            InvercargillLiquefactionRisk: Report_Content.result.Invercargill_Liquefaction_Risk? Report_Content.result.Invercargill_Liquefaction_Risk:'No response',
-            TsunamiEvacuationZones: Report_Content.result.Tsunami_Evacuation_Zones? Report_Content.result.Tsunami_Evacuation_Zones:'No response',
-            NationalTsunamiHazard : Report_Content.result.Tsunami_Landslide? Report_Content.result.Tsunami_Landslide:'No response',
-            ActualandPotentialFloodplain: Report_Content.result.Actual_and_Potential_Floodplain? Report_Content.result.Actual_and_Potential_Floodplain:'No response',
-            RiverineInundation: Report_Content.result.Riverine_Inundation? Report_Content.result.Riverine_Inundation:'No response',
-            GNSLandslideDatabase: Report_Content.result.Landslides? Report_Content.result.Landslides:'No response',
-            StewartIslandLandUse: Report_Content.result.Stewart_Island_Land_Use? Report_Content.result.Stewart_Island_Land_Use:'No response',
+            CoastalHazardLine: Report_Content.result.Coastal_Hazard_Line ? Report_Content.result.Coastal_Hazard_Line : 'No response',
+            CoaslineMostProne: Report_Content.result.Coastline_Most_Prone_To_Erosion ? Report_Content.result.Coastline_Most_Prone_To_Erosion : 'No response',
+            SeaLevelRise: Report_Content.result.Sea_Level_Rise_Storm ? Report_Content.result.Sea_Level_Rise_Storm : 'No response',
+            ActiveFaultDatabase: Report_Content.result.Active_Faults ? Report_Content.result.Active_Faults : 'No response',
+            SouthlandGroundShaking: Report_Content.result.Shaking_Amplification ? Report_Content.result.Shaking_Amplification : 'Tsunami  modelling in Southland is still being undertaken and is subject to change. If you are concerned, near a waterbody and there is a long or strong earthquake, evacuate the area immediately. Do not wait for official warnings.',
+            SouthlandLiquefactionRisk: Report_Content.result.Liquefaction_Risk ? Report_Content.result.Liquefaction_Risk : 'No response',
+            InvercargillLiquefactionRisk: Report_Content.result.Invercargill_Liquefaction_Risk ? Report_Content.result.Invercargill_Liquefaction_Risk : 'No response',
+            TsunamiEvacuationZones: Report_Content.result.Tsunami_Evacuation_Zones ? Report_Content.result.Tsunami_Evacuation_Zones : 'No response',
+            NationalTsunamiHazard: Report_Content.result.Tsunami_Landslide ? Report_Content.result.Tsunami_Landslide : 'No response',
+            ActualandPotentialFloodplain: Report_Content.result.Actual_and_Potential_Floodplain ? Report_Content.result.Actual_and_Potential_Floodplain : 'No response',
+            RiverineInundation: Report_Content.result.Riverine_Inundation ? Report_Content.result.Riverine_Inundation : 'No response',
+            GNSLandslideDatabase: Report_Content.result.Landslides ? Report_Content.result.Landslides : 'No response',
+            StewartIslandLandUse: Report_Content.result.Stewart_Island_Land_Use ? Report_Content.result.Stewart_Island_Land_Use : 'No response',
             propertyboundary: tmpImagePath,
-            floodphotographs : localPhotoPath
+            floodphotographs: localPhotoPath
         });
         // Render the document (replace all tags)
 
         // Generate the document buffer
         const buf = doc.getZip().generate({ type: "nodebuffer" });
-        fs.unlinkSync(tmpImagePath);
-        fs.unlinkSync(localPhotoPath);
+        if (tmpImagePath) {
+            fs.unlinkSync(tmpImagePath);
+        }
+        if (localPhotoPath) {
+            fs.unlinkSync(localPhotoPath);
+        }
         return buf;
     } catch (error) {
         console.error("Error generating report:", error);
