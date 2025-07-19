@@ -155,8 +155,8 @@ async function Report_Creation(User, Report_Content, geometry) {
         const formattedDate = today.toLocaleDateString();
         // Set the template variables
         doc.render({
-            propertyAddress: Report_Content.properties.appellation,
-            legalDescription: Report_Content.search_input.Legal_Description,
+            propertyAddress: Report_Content.search_input.Legal_Description,
+            legalDescription: Report_Content.properties.appellation,
             territorialAuthority: Report_Content.search_input.Territorial_Authority,
             limReferenceNumber: Report_Content.search_input.LIM_Reference_Number,
             date: formattedDate,
@@ -479,7 +479,7 @@ async function Query_Shaking_Amplification_Service(
         geometryType: "esriGeometryEnvelope",
         inSR: 2193,
         spatialRel: "esriSpatialRelIntersects",
-        outFields: "AMP_CODE",
+        outFields: "GroundClass,Description",
         returnGeometry: false,
         f: "json",
     };
@@ -504,11 +504,13 @@ async function Query_Shaking_Amplification_Service(
         throw err;
     }
     // 5) Return just the features array
-    if (resp.data.features.length > 0) {
-        return 'The property contains an area mapped as prone to Tsunami where evacuation will be required. Do not wait for official warnings, if there is a long or strong earthquake evacuate the area immediately. Note that not all tsunami modelling has been completed for Southland and this advice is subject to change.';
-    } else {
-        return false;
-    }
+    if (resp.data.features.length === 1) {
+            return `The amount of shaking felt in any given earthquake varies with the strength of the subsoil and underlying rock at the location.  The soil and rock condition has been mapped as an indicator of the capacity for amplified shaking. The ground is classifed as ${resp.data.features[0]?.attributes.GroundClass}, which is described as ${resp.data.features[0]?.attributes.Description}`;
+        }else if (resp.data.features.length > 1) {
+            return `The amount of shaking felt in any given earthquake varies with the strength of the subsoil and underlying rock at the location.  The soil and rock condition has been mapped as an indicator of the capacity for amplified shaking. The ground is classifed as the following:  ${resp.data.features.map(f => f.attributes.GroundClass).join(", ")} and ${resp.data.features.map(f => f.attributes.Description).join(", ")} results.`;
+        }else {
+            return false;
+        }
 }
 
 //Southland Liquefaction risk

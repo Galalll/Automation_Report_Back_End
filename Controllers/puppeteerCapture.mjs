@@ -40,10 +40,13 @@ export async function captureMapWithLeaflet({
     const tileLayer = L.tileLayer('${tileUrl}',{
       subdomains:['a','b','c'], attribution:''
     }).addTo(map);
+    const geoLayer = L.geoJSON(
+      ${JSON.stringify(geojson)},
+      { style: { color: '#f00', weight: 3, fillOpacity: 0.1 } }
+    ).addTo(map);
 
-    L.geoJSON(${JSON.stringify(geojson)}, {
-      style: { color:'#f00', weight:3, fillOpacity:0.1 }
-    }).addTo(map);
+    // 4) zoom/center to the polygon’s bounding box
+    map.fitBounds(geoLayer.getBounds(),{padding: [50,50]});
 
     // flag when ready
     tileLayer.on('load', () =>
