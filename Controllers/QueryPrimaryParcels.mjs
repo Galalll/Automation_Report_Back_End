@@ -78,7 +78,6 @@ async function QueryWFSAttributes(url, Address,Territorial_Authority) {
   const response = await axios.get(PrimaryParcelsURL);
   let result = [];
   response.data.features.forEach((feature) => {
-    console.log(Territorial_Authority);
     
     if (CheckOutCouncilsBorders(turf.bbox(feature))) {
       result.push(feature.properties);
@@ -151,7 +150,6 @@ async function CheckOutCouncilsBorders(BBox) {
     }
     // 5) Return just the features array
     if (resp.data.features.length > 0) {
-      console.log(resp.data.features[0]?.attributes?.TA2023_V_2);
       
         return resp.data.features[0]?.attributes?.TA2023_V_2; // Council found
     } else {

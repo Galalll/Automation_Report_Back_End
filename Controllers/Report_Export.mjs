@@ -938,7 +938,6 @@ async function Query_Historical_Flood_Photographs_Service(
     let resp;
     try {
         resp = await axios.get(url, { params, timeout: 120_000 });
-        console.log("Response from Historical Flood Photographs Service:", resp.data);
         
         if (resp.data.error) {
             throw new Error(
@@ -963,7 +962,6 @@ async function Query_Historical_Flood_Photographs_Service(
             result.attributes.URL =
                 "https://maps.es.govt.nz/apps/natural-hazards/photos" +
                 resp.data.features[0]?.attributes.URL;
-                console.log(result.attributes.URL);
                 
             return result.attributes;
         }
@@ -1096,7 +1094,7 @@ async function CheckOutCouncilsBorders(minLon, minLat, maxLon, maxLat) {
         geometryType: "esriGeometryEnvelope",
         inSR: 2193,
         spatialRel: "esriSpatialRelIntersects",
-        outFields: "TA2023_V_1",
+        outFields: "TA2023_V_2",
         returnGeometry: false,
         f: "json",
         token: AGOL_Token
