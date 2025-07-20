@@ -120,8 +120,10 @@ async function Report_Creation(User, Report_Content, geometry) {
         fs.writeFileSync(tmpImagePath, imgBuffer);
 
         let localPhotoPath;
+        let photodate;
         if (Report_Content.result.Historical_Flood_Photographs) {
-            localPhotoPath = await downloadImageToFile(Report_Content.result.Historical_Flood_Photographs);
+            localPhotoPath = await downloadImageToFile(Report_Content.result.Historical_Flood_Photographs.URL);
+            photodate = Report_Content.result.Historical_Flood_Photographs.Date;
         } else {
             localPhotoPath = null;
         }
@@ -174,7 +176,8 @@ async function Report_Creation(User, Report_Content, geometry) {
             GNSLandslideDatabase: Report_Content.result.Landslides ? Report_Content.result.Landslides : 'No response',
             StewartIslandLandUse: Report_Content.result.Stewart_Island_Land_Use ? Report_Content.result.Stewart_Island_Land_Use : 'No response',
             propertyboundary: tmpImagePath,
-            floodphotographs: localPhotoPath
+            floodphotographs: localPhotoPath,
+            photodate: photodate ? photodate : 'No date available',
         });
         // Render the document (replace all tags)
 
@@ -253,7 +256,7 @@ async function Query_Coastal_Hazard_Line_Service(
     const [xmin, ymin] = proj4("EPSG:4167", "EPSG:3857", [minLon, minLat]);
     const [xmax, ymax] = proj4("EPSG:4167", "EPSG:3857", [maxLon, maxLat]);
     const envelope = `${xmin},${ymin},${xmax},${ymax}`;
-    if (Location == "Southland District") {
+    if (Location == "Southland District Council") {
         const url =
             "https://services3.arcgis.com/v5RzLI7nHYeFImL4/ArcGIS/rest/services/Coastal_Hazard_Line/FeatureServer/0/query";
         const params = {
@@ -310,7 +313,7 @@ async function Query_Coastline_Most_Prone_To_Erosion_Service(
     const [xmin, ymin] = proj4("EPSG:4167", "EPSG:2193", [minLon, minLat]);
     const [xmax, ymax] = proj4("EPSG:4167", "EPSG:2193", [maxLon, maxLat]);
     const envelope = `${xmin},${ymin},${xmax},${ymax}`;
-    if (Location == "Invercargill City") {
+    if (Location == "Invercargill City Council") {
         const url =
             "https://services-ap1.arcgis.com/ZXhVeRvWZGPvtP2i/ArcGIS/rest/services/DistrictPlan/FeatureServer/0/query";
         const params = {
@@ -367,7 +370,7 @@ async function Query_Sea_Level_Rise_Storm_Service(
     const [xmin, ymin] = proj4("EPSG:4167", "EPSG:2193", [minLon, minLat]);
     const [xmax, ymax] = proj4("EPSG:4167", "EPSG:2193", [maxLon, maxLat]);
     const envelope = `${xmin},${ymin},${xmax},${ymax}`;
-    if (Location == "Invercargill City") {
+    if (Location == "Invercargill City Council") {
         const url =
         "https://services-ap1.arcgis.com/ZXhVeRvWZGPvtP2i/ArcGIS/rest/services/DistrictPlan/FeatureServer/1/query";
     const params = {
@@ -518,7 +521,7 @@ async function Query_Liquefaction_Risk_Service(minLon, minLat, maxLon, maxLat,Lo
     const [xmin, ymin] = proj4("EPSG:4167", "EPSG:2193", [minLon, minLat]);
     const [xmax, ymax] = proj4("EPSG:4167", "EPSG:2193", [maxLon, maxLat]);
     const envelope = `${xmin},${ymin},${xmax},${ymax}`;
-    if (Location == "Southland District" || Location == "Gore District") {
+    if (Location == "Southland District Council" || Location == "Gore District Council") {
         const url =
             "https://maps.es.govt.nz/server/rest/services/Public/NaturalHazards/MapServer/11/query";
         const params = {
@@ -569,7 +572,7 @@ async function Query_Invercargill_Liquefaction_risk(minLon, minLat, maxLon, maxL
     const [xmin, ymin] = proj4("EPSG:4167", "EPSG:2193", [minLon, minLat]);
     const [xmax, ymax] = proj4("EPSG:4167", "EPSG:2193", [maxLon, maxLat]);
     const envelope = `${xmin},${ymin},${xmax},${ymax}`;
-    if (Location == "Invercargill City") {
+    if (Location == "Invercargill City Council") {
         const url =
             "https://services-ap1.arcgis.com/ZXhVeRvWZGPvtP2i/ArcGIS/rest/services/Invercargill_Liquefaction_risk/FeatureServer/0/query";
         const params = {
@@ -622,7 +625,7 @@ async function Query_Tsunami_Landslide_Service(minLon, minLat, maxLon, maxLat,Lo
     const [xmin, ymin] = proj4("EPSG:4167", "EPSG:3857", [minLon, minLat]);
     const [xmax, ymax] = proj4("EPSG:4167", "EPSG:3857", [maxLon, maxLat]);
     const envelope = `${xmin},${ymin},${xmax},${ymax}`;
-    if (Location == "Southland District" || Location == "Invercargill City") {
+    if (Location == "Southland District Council" || Location == "Invercargill City Council") {
         const url =
         "https://services3.arcgis.com/v5RzLI7nHYeFImL4/arcgis/rest/services/TsunamiZones2021/FeatureServer/0/query";
     const params = {
@@ -747,7 +750,7 @@ async function Query_Tsunami_Evacuation_Zones_Service(
     const [xmin, ymin] = proj4("EPSG:4167", "EPSG:2193", [minLon, minLat]);
     const [xmax, ymax] = proj4("EPSG:4167", "EPSG:2193", [maxLon, maxLat]);
     const envelope = `${xmin},${ymin},${xmax},${ymax}`;
-    if (Location == "Southland District" || Location == "Invercargill City") {
+    if (Location == "Southland District Council" || Location == "Invercargill City Council") {
         const url =
             "https://maps.es.govt.nz/server/rest/services/Public/NaturalHazards/MapServer/8/query";
         const params = {
@@ -806,7 +809,7 @@ async function Query_Stewart_Island_Land_Use_Service(
     const [xmin, ymin] = proj4("EPSG:4167", "EPSG:2193", [minLon, minLat]);
     const [xmax, ymax] = proj4("EPSG:4167", "EPSG:2193", [maxLon, maxLat]);
     const envelope = `${xmin},${ymin},${xmax},${ymax}`;
-    if (Location == "Southland District") {
+    if (Location == "Southland District Council") {
         const url =
             "https://maps.es.govt.nz/server/rest/services/Public/NaturalHazards/MapServer/9/query";
         const params = {
@@ -924,8 +927,9 @@ async function Query_Historical_Flood_Photographs_Service(
         geometryType: "esriGeometryEnvelope",
         inSR: 2193,
         spatialRel: "esriSpatialRelIntersects",
-        outFields: "Date,Type,Aspect,URL",
+        outFields: "URL,Date",
         distance: 200,
+        units: "esriSRUnit_Meter",
         returnGeometry: false,
         f: "json",
     };
@@ -934,7 +938,8 @@ async function Query_Historical_Flood_Photographs_Service(
     let resp;
     try {
         resp = await axios.get(url, { params, timeout: 120_000 });
-
+        console.log("Response from Historical Flood Photographs Service:", resp.data);
+        
         if (resp.data.error) {
             throw new Error(
                 `Service error ${resp.data.error.code}: ${resp.data.error.message}`
@@ -958,7 +963,9 @@ async function Query_Historical_Flood_Photographs_Service(
             result.attributes.URL =
                 "https://maps.es.govt.nz/apps/natural-hazards/photos" +
                 resp.data.features[0]?.attributes.URL;
-            return result.attributes.URL;
+                console.log(result.attributes.URL);
+                
+            return result.attributes;
         }
     } else {
         return false;
@@ -975,7 +982,7 @@ async function Query_District_Inundation_Service(
     const [xmin, ymin] = proj4("EPSG:4167", "EPSG:2193", [minLon, minLat]);
     const [xmax, ymax] = proj4("EPSG:4167", "EPSG:2193", [maxLon, maxLat]);
     const envelope = `${xmin},${ymin},${xmax},${ymax}`;
-    if (Location == "Gore District") {
+    if (Location == "Gore District Council") {
         const url =
             "https://services7.arcgis.com/308bMeGCJ1H5zqO0/ArcGIS/rest/services/District_Inundation/FeatureServer/0/query";
         const params = {
@@ -1030,7 +1037,7 @@ async function Query_Riverine_Inundation_Service(
     const [xmin, ymin] = proj4("EPSG:4167", "EPSG:2193", [minLon, minLat]);
     const [xmax, ymax] = proj4("EPSG:4167", "EPSG:2193", [maxLon, maxLat]);
     const envelope = `${xmin},${ymin},${xmax},${ymax}`;
-    if (Location == "Invercargill City") {
+    if (Location == "Invercargill City Council") {
         const url =
         "https://services-ap1.arcgis.com/ZXhVeRvWZGPvtP2i/ArcGIS/rest/services/DistrictPlan/FeatureServer/2/query";
     const params = {
@@ -1117,7 +1124,7 @@ async function CheckOutCouncilsBorders(minLon, minLat, maxLon, maxLat) {
     }
     // 5) Return just the features array
     if (resp.data.features.length > 0) {
-        return resp.data.features[0]?.attributes?.TA2023_V_1; // Council found
+        return resp.data.features[0]?.attributes?.TA2023_V_2; // Council found
     } else {
         return ""; // No Council found
     }
