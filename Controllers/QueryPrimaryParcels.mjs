@@ -33,7 +33,7 @@ let AddressQueryPrimaryParcelsAttributes = expressAsyncHandler(async (req, res) 
   let queryResult = {};
   queryResult.input = req.body;
   try {
-    queryResult.properties = await QueryWFSAttributes(PrimaryParcels, Property_Address,Territorial_Authority);
+    queryResult.properties = await QueryWFSAttributes(PrimaryParcels, Legal_Description,Territorial_Authority);
   } catch (err) {
     console.error("Error querying NZ Primary Parcels:", err);
     return res.status(500).json({ message: "Error getting Primary Parcels" });
@@ -59,7 +59,6 @@ let AddressQueryPrimaryParcelsGeometry = expressAsyncHandler(async (req, res) =>
     console.error("Error querying NZ Primary Parcels:", err);
     return res.status(500).json({ message: "Error getting Primary Parcels" });
   }
-
   return res.status(200).json(queryResult);
 });
 
@@ -76,14 +75,18 @@ async function QueryWFSAttributes(url, Address,Territorial_Authority) {
   var encodedFilter = encodeURIComponent(filter);
   let PrimaryParcelsURL = url + encodedFilter;
   const response = await axios.get(PrimaryParcelsURL);
+  console.log("Response from Primary Parcels:", response.data.features[0].properties);
+  
   let result = [];
-  response.data.features.forEach((feature) => {
-    
-    if (CheckOutCouncilsBorders(turf.bbox(feature))) {
+  for (const feature of response.data.features) {
+    let Location = await CheckOutCouncilsBorders(turf.bbox(feature));
+    console.log("Location:", Location);
+    console.log("Territorial_Authority:", Territorial_Authority);
+    if (Location == Territorial_Authority) {
       result.push(feature.properties);
     }
-  })
-  return result;
+  }
+  return result.length > 0 ? result : "The LOT legal description does not match any Primary Parcels in the Territorial Authority specified.";
 }
 
 
@@ -150,7 +153,7 @@ async function CheckOutCouncilsBorders(BBox) {
     }
     // 5) Return just the features array
     if (resp.data.features.length > 0) {
-      
+        
         return resp.data.features[0]?.attributes?.TA2023_V_2; // Council found
     } else {
         return false; // No Council found

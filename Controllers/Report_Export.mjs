@@ -90,17 +90,6 @@ async function Query_Services(geometry) {
 
 async function Report_Creation(User, Report_Content, geometry) {
     let AddHistory = {};
-    AddHistory.UserEmail = User.user.Email;
-    AddHistory.UserName = `${User.user.FirstName} ${User.user.LastName}`;
-    AddHistory.Search_Date = Date.now();
-    AddHistory.Property_Address = Report_Content.properties.appellation;
-    AddHistory.Legal_Description = Report_Content.search_input.Legal_Description;
-    AddHistory.Territorial_Authority =
-        Report_Content.search_input.Territorial_Authority;
-    AddHistory.LIM_Reference_Num =
-        Report_Content.search_input.LIM_Reference_Number;
-    AddHistory.Land_District = Report_Content.properties.land_district;
-    await SaveQueryHistory(AddHistory);
     try {
 
         // const apiToken = process.env.LINZ_API_TOKEN;  // set your token in env
@@ -156,25 +145,35 @@ async function Report_Creation(User, Report_Content, geometry) {
         const today = new Date();
         const formattedDate = today.toLocaleDateString();
         // Set the template variables
+        const Coastal_Section = (Report_Content.result.Coastal_Hazard_Line || Report_Content.result.Coastline_Most_Prone_To_Erosion || Report_Content.result.Sea_Level_Rise_Storm) ? true : null;
+        const Earthquake_Section = (Report_Content.result.Active_Faults || Report_Content.result.Shaking_Amplification || Report_Content.result.Liquefaction_Risk || Report_Content.result.Invercargill_Liquefaction_Risk) ? true : null;
+        const Tsunami_Section = (Report_Content.result.Tsunami_Evacuation_Zones || Report_Content.result.NationalTsunamiHazard) ? true : null;
+        const Flooding_Section = (Report_Content.result.Actual_and_Potential_Floodplain || Report_Content.result.RiverineInundation) ? true : null;
+
+
         doc.render({
             propertyAddress: Report_Content.search_input.Legal_Description,
             legalDescription: Report_Content.properties.appellation,
             territorialAuthority: Report_Content.search_input.Territorial_Authority,
             limReferenceNumber: Report_Content.search_input.LIM_Reference_Number,
             date: formattedDate,
-            CoastalHazardLine: Report_Content.result.Coastal_Hazard_Line ? Report_Content.result.Coastal_Hazard_Line : 'No response',
-            CoaslineMostProne: Report_Content.result.Coastline_Most_Prone_To_Erosion ? Report_Content.result.Coastline_Most_Prone_To_Erosion : 'No response',
-            SeaLevelRise: Report_Content.result.Sea_Level_Rise_Storm ? Report_Content.result.Sea_Level_Rise_Storm : 'No response',
-            ActiveFaultDatabase: Report_Content.result.Active_Faults ? Report_Content.result.Active_Faults : 'No response',
+            CoastalSection: Coastal_Section,
+            EarthquakeSection: Earthquake_Section,
+            TsunamiSection: Tsunami_Section,
+            FloodingSection: Flooding_Section,
+            CoastalHazardLine: Report_Content.result.Coastal_Hazard_Line ? Report_Content.result.Coastal_Hazard_Line : null,
+            CoaslineMostProne: Report_Content.result.Coastline_Most_Prone_To_Erosion ? Report_Content.result.Coastline_Most_Prone_To_Erosion : null,
+            SeaLevelRise: Report_Content.result.Sea_Level_Rise_Storm ? Report_Content.result.Sea_Level_Rise_Storm : null,
+            ActiveFaultDatabase: Report_Content.result.Active_Faults ? Report_Content.result.Active_Faults : null,
             SouthlandGroundShaking: Report_Content.result.Shaking_Amplification ? Report_Content.result.Shaking_Amplification : 'Tsunami  modelling in Southland is still being undertaken and is subject to change. If you are concerned, near a waterbody and there is a long or strong earthquake, evacuate the area immediately. Do not wait for official warnings.',
-            SouthlandLiquefactionRisk: Report_Content.result.Liquefaction_Risk ? Report_Content.result.Liquefaction_Risk : 'No response',
-            InvercargillLiquefactionRisk: Report_Content.result.Invercargill_Liquefaction_Risk ? Report_Content.result.Invercargill_Liquefaction_Risk : 'No response',
-            TsunamiEvacuationZones: Report_Content.result.Tsunami_Evacuation_Zones ? Report_Content.result.Tsunami_Evacuation_Zones : 'No response',
-            NationalTsunamiHazard: Report_Content.result.Tsunami_Landslide ? Report_Content.result.Tsunami_Landslide : 'No response',
-            ActualandPotentialFloodplain: Report_Content.result.Actual_and_Potential_Floodplain ? Report_Content.result.Actual_and_Potential_Floodplain : 'No response',
-            RiverineInundation: Report_Content.result.Riverine_Inundation ? Report_Content.result.Riverine_Inundation : 'No response',
-            GNSLandslideDatabase: Report_Content.result.Landslides ? Report_Content.result.Landslides : 'No response',
-            StewartIslandLandUse: Report_Content.result.Stewart_Island_Land_Use ? Report_Content.result.Stewart_Island_Land_Use : 'No response',
+            SouthlandLiquefactionRisk: Report_Content.result.Liquefaction_Risk ? Report_Content.result.Liquefaction_Risk : null,
+            InvercargillLiquefactionRisk: Report_Content.result.Invercargill_Liquefaction_Risk ? Report_Content.result.Invercargill_Liquefaction_Risk : null,
+            TsunamiEvacuationZones: Report_Content.result.Tsunami_Evacuation_Zones ? Report_Content.result.Tsunami_Evacuation_Zones : null,
+            NationalTsunamiHazard: Report_Content.result.Tsunami_Landslide ? Report_Content.result.Tsunami_Landslide : null,
+            ActualandPotentialFloodplain: Report_Content.result.Actual_and_Potential_Floodplain ? Report_Content.result.Actual_and_Potential_Floodplain : null,
+            RiverineInundation: Report_Content.result.Riverine_Inundation ? Report_Content.result.Riverine_Inundation : null,
+            GNSLandslideDatabase: Report_Content.result.Landslides ? Report_Content.result.Landslides : null,
+            StewartIslandLandUse: Report_Content.result.Stewart_Island_Land_Use ? Report_Content.result.Stewart_Island_Land_Use : null,
             propertyboundary: tmpImagePath,
             floodphotographs: localPhotoPath,
             photodate: photodate ? photodate : 'No date available',
@@ -189,6 +188,29 @@ async function Report_Creation(User, Report_Content, geometry) {
         if (localPhotoPath) {
             fs.unlinkSync(localPhotoPath);
         }
+            AddHistory.UserEmail = User.user.Email;
+            AddHistory.UserName = `${User.user.FirstName} ${User.user.LastName}`;
+            AddHistory.Search_Date = Date.now();
+            AddHistory.Property_Address = Report_Content.properties.appellation;
+            AddHistory.Legal_Description = Report_Content.search_input.Legal_Description;
+            AddHistory.Territorial_Authority =Report_Content.search_input.Territorial_Authority;
+            AddHistory.LIM_Reference_Num =Report_Content.search_input.LIM_Reference_Number;
+            AddHistory.Land_District = Report_Content.properties.land_district;
+
+            AddHistory.CoastalHazardLine = Report_Content.result.Coastal_Hazard_Line ? Report_Content.result.Coastal_Hazard_Line : null,
+            AddHistory.CoaslineMostProne = Report_Content.result.Coastline_Most_Prone_To_Erosion ? Report_Content.result.Coastline_Most_Prone_To_Erosion : null,
+            AddHistory.SeaLevelRise = Report_Content.result.Sea_Level_Rise_Storm ? Report_Content.result.Sea_Level_Rise_Storm : null,
+            AddHistory.ActiveFaultDatabase = Report_Content.result.Active_Faults ? Report_Content.result.Active_Faults : null,
+            AddHistory.SouthlandGroundShaking = Report_Content.result.Shaking_Amplification ? Report_Content.result.Shaking_Amplification : 'Tsunami  modelling in Southland is still being undertaken and is subject to change. If you are concerned, near a waterbody and there is a long or strong earthquake, evacuate the area immediately. Do not wait for official warnings.',
+            AddHistory.SouthlandLiquefactionRisk = Report_Content.result.Liquefaction_Risk ? Report_Content.result.Liquefaction_Risk : null,
+            AddHistory.InvercargillLiquefactionRisk = Report_Content.result.Invercargill_Liquefaction_Risk ? Report_Content.result.Invercargill_Liquefaction_Risk : null,
+            AddHistory.TsunamiEvacuationZones = Report_Content.result.Tsunami_Evacuation_Zones ? Report_Content.result.Tsunami_Evacuation_Zones : null,
+            AddHistory.NationalTsunamiHazard = Report_Content.result.Tsunami_Landslide ? Report_Content.result.Tsunami_Landslide : null,
+            AddHistory.ActualandPotentialFloodplain = Report_Content.result.Actual_and_Potential_Floodplain ? Report_Content.result.Actual_and_Potential_Floodplain : null,
+            AddHistory.RiverineInundation = Report_Content.result.Riverine_Inundation ? Report_Content.result.Riverine_Inundation : null,
+            AddHistory.GNSLandslideDatabase = Report_Content.result.Landslides ? Report_Content.result.Landslides : null,
+            AddHistory.StewartIslandLandUse = Report_Content.result.Stewart_Island_Land_Use ? Report_Content.result.Stewart_Island_Land_Use : null,
+            await SaveQueryHistory(AddHistory);
         return buf;
     } catch (error) {
         console.error("Error generating report:", error);
@@ -352,10 +374,10 @@ async function Query_Coastline_Most_Prone_To_Erosion_Service(
         if (resp.data.features.length > 0) {
             return 'This property is deemed to be prone to coastal hazards. In Invercargill, any land between the Coasline Most Prone to Erosion and the coast is at risk from coastal hazards, while special provisions under the Invercargill City Plan apply to limit the use of this land.';
         } else {
-            return "No response.";
+            return false;
         }
     } else {
-        return "No response.";
+        return false;
     }
 }
 
